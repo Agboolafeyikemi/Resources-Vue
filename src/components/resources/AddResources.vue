@@ -1,44 +1,74 @@
 <template>
+  <base-dialog
+    v-if="InputIsInvalid"
+    title="Input Invalid"
+    @close="confirmError"
+  >
+    <template #default>
+      <p>Unfortuantely, atleast one of the input value is invalid</p>
+      <p>Please fill all the input field</p>
+    </template>
+    <template #actions>
+      <base-button @click="confirmError">Okay</base-button>
+    </template>
+  </base-dialog>
   <base-card>
-    <form @submit.prevent="addResources">
+    <form @submit.prevent="submitData">
       <div class="form-control">
         <label for="title">Title</label>
-        <input :v-model="title" id="title" name="title" type="text" />
+        <input ref="titleInput" id="title" name="title" type="text" />
       </div>
       <div class="form-control">
         <label for="description">Description</label>
         <textarea
-          :v-model="description"
           id="description"
           name="description"
           row="3"
+          ref="descIput"
         ></textarea>
       </div>
       <div class="form-control">
         <label for="Link">Link</label>
-        <input :v-model="link" id="Link" name="Link" type="url" />
+        <input ref="linkInput" id="Link" name="Link" type="url" />
       </div>
       <div>
-        <base-button :v-on="addResources" type="submit"
-          >Add Resource</base-button
-        >
+        <base-button type="submit">Add Resource</base-button>
       </div>
     </form>
   </base-card>
 </template>
 
 <script>
+import BaseButton from '../UI/BaseButton.vue';
+import BaseDialog from '../UI/BaseDialog.vue';
 export default {
+  components: { BaseDialog, BaseButton },
   data() {
     return {
-      title: '',
-      description: '',
-      link: '',
+      InputIsInvalid: false,
     };
   },
+  inject: ['addResource'],
   methods: {
-    addResources() {
-      console.log('title\n\n\\n\n\n', this.title, this.description, this.link);
+    submitData() {
+      //   console.log('title\n\n\\n\n\n', this.title, this.description, this.link);
+      const enteredTitle = this.$refs.titleInput.value;
+      const enteredDescription = this.$refs.descIput.value;
+      const enteredURL = this.$refs.linkInput.value;
+
+      if (
+        enteredTitle.trim() === '' ||
+        enteredDescription.trim() === '' ||
+        enteredURL.trim() === ''
+      ) {
+        this.InputIsInvalid = true;
+        return;
+      }
+
+      this.addResource(enteredTitle, enteredDescription, enteredURL);
+    },
+    confirmError() {
+      this.InputIsInvalid = false;
     },
   },
 };
